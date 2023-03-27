@@ -5,7 +5,6 @@ class MainPageEvent extends ChatEvent{
 }
 class SignUpButtonEvent extends ChatEvent {
   String email;
-  //String spilted;
   String password;
 
   SignUpButtonEvent({required this.email, required this.password,});

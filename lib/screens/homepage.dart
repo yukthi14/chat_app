@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/bloc_main.dart';
+import '../list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,16 +22,30 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+  var topSize, containerSize;
 
   @override
   void initState() {
-    // TODO: implement initState
     _bloc.add(MainPageEvent());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    topSize = MediaQuery.of(context).size.height * 0.009;
+    containerSize = MediaQuery.of(context).size.height * 0.805;
+    if (WidgetsBinding.instance.window.viewInsets.bottom > 0.0) {
+      setState(() {
+        containerSize = MediaQuery.of(context).size.height * 0.47;
+        topSize = MediaQuery.of(context).size.height * 0.0099;
+      });
+    } else {
+      setState(() {
+        containerSize = MediaQuery.of(context).size.height * 0.805;
+        topSize = MediaQuery.of(context).size.height * 0.009;
+      });
+    }
+
     return Scaffold(
       backgroundColor: Colors.cyan.shade100,
       body: Container(
@@ -57,26 +72,26 @@ class _HomePageState extends State<HomePage> {
 
   Widget _mainPage(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black12,
-      appBar: AppBar(
-        title: const Text(
-          "List View",
-          style: TextStyle(
-              fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black),
+        backgroundColor: Colors.black12,
+        appBar: AppBar(
+          title: const Text(
+            "List View",
+            style: TextStyle(
+                fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+          backgroundColor: Colors.lightBlue.shade300,
+          actions: [
+            OutlinedButton(
+                onPressed: () {
+                  _bloc.add(FirstPageEvent());
+                },
+                child: const Icon(
+                  Icons.chat_rounded,
+                  color: Colors.black87,
+                ))
+          ],
         ),
-        backgroundColor: Colors.lightBlue.shade300,
-        actions: [
-          OutlinedButton(
-              onPressed: () {
-                _bloc.add(FirstPageEvent());
-              },
-              child: const Icon(
-                Icons.chat_rounded,
-                color: Colors.black87,
-              ))
-        ],
-      ),
-    );
+        body: Column());
   }
 
   Widget _firstPage(BuildContext context) {
@@ -97,39 +112,79 @@ class _HomePageState extends State<HomePage> {
               child: const Icon(Icons.logout, color: Colors.black87))
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Container(
-            color: Colors.amber,
-            margin: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.5),
-            width: MediaQuery.of(context).size.width*0.85,
-           height: MediaQuery.of(context).size.height*0.1,
-            child: Row(
-              children: [
-                TextFormField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50),borderSide:BorderSide(color: Colors.blueAccent,width: 2)
-                    ),
-                    hintStyle: const TextStyle(color: Colors.green),
-                    hintText: "Enter Message",
-                    labelText: "Message",
-                    labelStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
-                    contentPadding: const EdgeInsets.all(20),
-                  ),
+          Lists.sentMessage.isNotEmpty
+              ? Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: containerSize,
+                  color: Colors.transparent,
+                  child: ListView.builder(
+                      itemCount: Lists.sentMessage.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: EdgeInsets.only(
+                            right:MediaQuery.of(context).size.width * 0.05 ,
+                            top: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          height: MediaQuery.of(context).size.height * 0.03,
+                          width: MediaQuery.of(context).size.width,
+                          child: Text(
+                            Lists.sentMessage[index],
+                            style: const TextStyle(fontSize: 24,fontStyle:FontStyle.italic),
+                            textDirection: TextDirection.rtl,
+                          ),
+                        );
+                      }),
+                )
+              : Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: containerSize,
+                  color: Colors.green,
+                  child: const Center(
+                      child: Text(
+                    "Welcome",
+                    style: TextStyle(fontSize: 30),
+                  ))),
+          SingleChildScrollView(
+            reverse: true,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  right: MediaQuery.of(context).size.width * 0.2,
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  top: topSize),
+              child: TextFormField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide:
+                          BorderSide(color: Colors.blueAccent, width: 2)),
+                  hintStyle: const TextStyle(color: Colors.green),
+                  hintText: "Enter Message",
+                  labelText: "Message",
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                  contentPadding: const EdgeInsets.all(20),
                 ),
-                IconButton(
-                    onPressed:(){
-
-                    }, icon: Icon(Icons.send_outlined))
-              ],
+              ),
             ),
           ),
-
         ],
       ),
-
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              Lists.sentMessage.add(_messageController.text);
+            });
+          },
+          child: Icon(Icons.send),
+        ),
+      ),
     );
   }
 
@@ -184,7 +239,7 @@ class _HomePageState extends State<HomePage> {
           icon: Icon(Icons.mail_rounded),
           hintText: "Email Address",
           labelText: "Email",
-          labelStyle: TextStyle(color: Colors.red,fontWeight: FontWeight.bold),
+          labelStyle: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
           ),
@@ -202,7 +257,7 @@ class _HomePageState extends State<HomePage> {
           icon: Icon(Icons.remove_red_eye_rounded),
           hintText: "Password",
           labelText: "Password",
-          labelStyle: TextStyle(color: Colors.red,fontWeight: FontWeight.bold),
+          labelStyle: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0))),
         ),
