@@ -11,6 +11,10 @@ class MainPageState extends ChatState {
 class LogOutState extends ChatState {
   LogOutState();
 }
+class OtpState extends ChatState{
+  String verificationId;
+  OtpState({required this.verificationId});
+}
 class FirstPageState extends ChatState {
   FirstPageState();
 }

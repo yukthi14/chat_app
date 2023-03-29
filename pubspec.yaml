@@ -45,6 +45,8 @@ dependencies:
   email_validator: ^2.1.17
   fluttertoast: ^8.2.1
   shared_preferences: ^2.0.15
+  pinput: ^2.2.31
+  phone_number: ^1.0.0
 
 dev_dependencies:
   flutter_test:
